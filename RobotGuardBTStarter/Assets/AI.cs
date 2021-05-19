@@ -68,6 +68,43 @@ public class AI : MonoBehaviour
             Task.current.Succeed();
         }
     }
+
+
+
+    [Task]
+    public void PickDestination(int x, int z)
+    { Vector3 dest = new Vector3(x, 0, z); 
+        agent.SetDestination(dest); 
+        Task.current.Succeed();
+    }
+
+
+    [Task] 
+    public void TargetPlayer() 
+    { 
+        target = player.transform.position; 
+        Task.current.Succeed(); 
+    }
+    [Task] 
+    public bool Fire()
+    { 
+        GameObject bullet = GameObject.Instantiate(bulletPrefab, bulletSpawn.transform.position, bulletSpawn.transform.rotation);
+        bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * 2000);
+        return true; 
+    }
+
+    [Task] 
+    public void LookAtTarget() 
+    {
+        Vector3 direction = target - this.transform.position; this.transform.rotation = Quaternion.Slerp(this.transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * rotSpeed);
+        if (Task.isInspected) Task.current.debugInfo = string.Format("angle={0}", Vector3.Angle(this.transform.forward, direction)); 
+        if (Vector3.Angle(this.transform.forward, direction) < 5.0f)
+        {
+            Task.current.Succeed();
+        }
+    }
+
+
 }
 
 
