@@ -82,27 +82,69 @@ public class AI : MonoBehaviour
     [Task] 
     public void TargetPlayer() 
     { 
-        target = player.transform.position; 
-        Task.current.Succeed(); 
+        target = player.transform.position; //Pega o posicionamento do player
+        Task.current.Succeed(); //Retorno da informação
     }
     [Task] 
     public bool Fire()
     { 
-        GameObject bullet = GameObject.Instantiate(bulletPrefab, bulletSpawn.transform.position, bulletSpawn.transform.rotation);
+        GameObject bullet = GameObject.Instantiate(bulletPrefab, //instancia o prefab da bala contra o personagem
+            bulletSpawn.transform.position, bulletSpawn.transform.rotation);
+
         bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * 2000);
+
         return true; 
     }
 
     [Task] 
-    public void LookAtTarget() 
+    public void LookAtTarget() //Movimento do personagem para mirar para o objeto
     {
-        Vector3 direction = target - this.transform.position; this.transform.rotation = Quaternion.Slerp(this.transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * rotSpeed);
-        if (Task.isInspected) Task.current.debugInfo = string.Format("angle={0}", Vector3.Angle(this.transform.forward, direction)); 
-        if (Vector3.Angle(this.transform.forward, direction) < 5.0f)
+        Vector3 direction = target - this.transform.position; //Posicionamento do personagem
+
+        this.transform.rotation = Quaternion.Slerp(this.transform.rotation,//Rotação para atirar
+         Quaternion.LookRotation(direction), Time.deltaTime * rotSpeed);
+
+        if (Task.isInspected) // Volta contra o player
+            Task.current.debugInfo = string.Format("angle={0}",
+                Vector3.Angle(this.transform.forward, direction)); 
+
+        if (Vector3.Angle(this.transform.forward, direction) < 5.0f) //Execução do tiro
         {
             Task.current.Succeed();
         }
     }
+
+    [Task]
+    bool SeePlayer() //Observar o player
+    {
+        Vector3 distance = player.transform.position - this.transform.position; //Vetor de distância entre o player e o NPC
+        RaycastHit hit; //Raycast para identificação
+        bool seeWall = false; //Identificação das paredes
+        Debug.DrawRay(this.transform.position, distance, Color.red); 
+        if (Physics.Raycast(this.transform.position, distance, out hit))
+        {
+            if (hit.collider.gameObject.tag == "wall")
+            {
+                seeWall = true;
+            }
+        }
+        if (Task.isInspected)
+            Task.current.debugInfo = string.Format("wall{0}", seeWall);
+
+        if (distance.magnitude < visibleRange && !seeWall)
+            return true;
+        else
+            return false;
+    }
+
+    [Task]
+    bool Turn(float angle) //Mudança de ângulo para posição
+    {
+        var p = this.transform.position + Quaternion.AngleAxis(angle, Vector3.up) * this.transform.forward;
+        target = p;
+        return true;
+    }
+
 
 
 }

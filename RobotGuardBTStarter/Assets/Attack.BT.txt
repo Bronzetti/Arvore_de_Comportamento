@@ -1,5 +1,5 @@
 tree("Root")
-	whileSeePlayer
+	while SeePlayer //Condicional caso veja o player	
 		sequence
 			TargetPlayer
 			LookAtTarget
