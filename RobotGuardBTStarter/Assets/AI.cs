@@ -145,6 +145,20 @@ public class AI : MonoBehaviour
         return true;
     }
 
+    [Task] 
+    public bool IsHealthLessThan(float health) //Método de nível de energia do personagem
+    { 
+        return this.health < health; 
+    }
+
+    [Task]
+    public bool Explode() //Método que verifica se o personagem está vivo ou não 
+    {
+        Destroy(healthBar.gameObject);
+        Destroy(this.gameObject);
+        return true;
+    }
+
 
 
 }
